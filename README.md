@@ -116,6 +116,9 @@ The simplest way to run it is to use the Gradle wrapper:
 
 where _`input.conf`_ is your configuration file.
 
+If rendering of sam map fails with `HTTP 413` from MapBox, try to specify `maxPointsBase` in the configuration. It will lower your points
+in rendered path but raise the probability to actually render the map. WTH, you ask? See [P.S.s](#pss).
+
 ### P.S.s
 
 Some genius in MapBox decided that the static maps API will accept only `GET` requests, which may lead to
@@ -125,3 +128,8 @@ Another issue is they are limiting number of waypoints when rendering path. It's
 however requests with more than _`N`_ (TBH I didn't manage to discover exact _`N`_...) waypoints end with HTTP 413 ("Payload Too Large") error. This is the reason why
 waypoints returned by Google are filtered to satisfy the limit. Unfortunately it may happen (if you try to render
 very long path) the filtering will be too strong which will cause killing the path fluency (didn't happen to me).
+
+## TODOs
+
+1. Parametrize rest of map rendering options - bearing, retina
+1. Parametrize more Directions API options - e.g. enable to plan walking route (will that work for trail paths?)

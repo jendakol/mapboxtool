@@ -17,10 +17,6 @@ class MapBox(apiKey: String) {
                          pitch: Int,
                          pathPoints: Option[List[LatLng]],
                          mapPoints: Option[List[LatLng]]): Unit = {
-    println {
-      s"Requesting map render with ${mapPoints.map(_.size).getOrElse(0)} map points and ${pathPoints.map(_.size).getOrElse(0)} path points"
-    }
-
     val polyLineStr = pathPoints
       .map(pp => urlEncode(polyline.encode(pp.map(ll => ll.lon -> ll.lat))))
       .map("path-5+f44-0.8(" + _ + ")")
@@ -33,10 +29,16 @@ class MapBox(apiKey: String) {
 
     val url = s"$rootUrl$finalOverlayStr/$centerStr,$zoom.0,0,$pitch/${width}x$height@2x?access_token=$apiKey"
 
+    println {
+      val mapPC = mapPoints.map(_.size).getOrElse(0)
+      val pathPC = pathPoints.map(_.size).getOrElse(0)
+
+      s"Requesting map render with $mapPC map points and $pathPC path points; URL $url"
+    }
+
     val resp = Http(url).asBytes
 
     if (!resp.is2xx) {
-      println("Failed URL:" + url)
       sys.error(s"Map render failed with HTTP ${resp.statusLine}, msg: '${new String(resp.body)}'")
     }
 
