@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets
 
 package object mapboxtool {
 
+  type GetRoutePoints = Seq[String] => List[LatLng]
+
   case class LatLng(lat: Double, lon: Double)
 
   def urlEncode(s: String): String = {

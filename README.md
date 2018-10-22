@@ -1,8 +1,7 @@
 # MapBox map rendering tool
 
 This is a tool for rendering static maps via [MapBox](https://mapbox.com) with a little help of
-[Google Directions API](https://developers.google.com/maps/documentation/directions/intro) (in case of rendering
-path on the map).
+some of supported [directions APIs](#directions-api-providers) (in case of rendering path on the map).
 
 It has no ambitions to be a published library of any type; it's supposed to be tool which you checkout to your
 computer and run it from sources.  
@@ -17,9 +16,8 @@ The code is not a real best-practises overview, please don't judge me based on i
 1. MapBox API key
     You can get the _Default public token_ in your [MapBox account](https://www.mapbox.com/account/) (which you may
     need to create first ;-)
-1. Google Directions API key
+1. Directions API provider account - see [directions API providers](#directions-api-providers).
     This is optional and you will need it only if you want some directions path to be rendered into the map.  
-    Learn how to get the key at [Google Developers page](https://developers.google.com/maps/documentation/directions/get-api-key).
 
 ### Download
 
@@ -31,7 +29,6 @@ repo with a GIT.
 The application is configured via single file in [HOCON format](https://github.com/lightbend/config/blob/master/HOCON.md).  
 
 The file has to content:
-1. `googleApiKey`
 1. `mapBoxApiKey`
 1. `maps` configurations
 1. `maxPointsBase` (optional) - see [P.S.s](#pss); configures max. number of points passed to MapBox rendering
@@ -42,17 +39,25 @@ Each map configuration contains:
 1. `zoom`
 1. `pitch` - angle of map view
 1. `center` - center point of the map
-1. `pathPoints` (optional) - set of places for directions path rendering; if present, has to contains at least 2 places
+1. `path` (optional) - set of places for directions path rendering; if present, has to contains at least 2 places
 1. `mapPoints` (optional) - set of places where to put map markers
 
+Path configuration:
+1. `directionsProvider` - Directions API configuration
+1. waypoints - set of places for directions path rendering; has to contains at least 2 places
+
+Directions API configuration:
+1. `provider` - name of provider, see [supported providers list](#directions-api-providers)
+1. `mode` - mode of the path searching; directly related to specific provider
+1. `apiKey` - API key of specific provider; see related section in [supported providers list](#directions-api-providers)
 
 _Note: you can use [playground](https://www.mapbox.com/help/static-api-playground/) to try map render settings._
 
 Example file looks like this:
 
 ```hocon
-googleApiKey = "AI***********************************OA"
 mapBoxApiKey = "pk.*************************************************************************************dA"
+googleApiKey = "AI***********************************OA"
 
 points = [
   {
@@ -77,16 +82,27 @@ maps = [{
   height = 720
   zoom = 8.5
   pitch = 30
+  
   center {
     lat = 51.73153
     lon = -4.03355
-  },
-  pathPoints = [
-    "cardiff, wales",
-    "st.davids, wales",
-    "fishguard, wales",
-    "tenby, wales"
-  ],
+  }
+  
+  path {
+    directionsProvider {
+      provider = "google"
+      mode = "driving"
+      apiKey = ${googleApiKey}
+    }
+    
+    waypoints = [
+      "cardiff, wales",
+      "st.davids, wales",
+      "fishguard, wales",
+      "tenby, wales"
+    ]
+  }
+  
   mapPoints = ${points}
 }, {
   fileName = "/data/maps/wales-north.jpeg"
@@ -94,11 +110,14 @@ maps = [{
   height = 720
   zoom = 8.5
   pitch = 30
+  
   center {
     lat = 52.73441
     lon = -3.82024
-  },
-  // missing path points
+  }
+  
+  // missing path
+  
   mapPoints = ${points}
 }]
 ```
@@ -128,6 +147,15 @@ Another issue is they are limiting number of waypoints when rendering path. It's
 however requests with more than _`N`_ (TBH I didn't manage to discover exact _`N`_...) waypoints end with HTTP 413 ("Payload Too Large") error. This is the reason why
 waypoints returned by Google are filtered to satisfy the limit. Unfortunately it may happen (if you try to render
 very long path) the filtering will be too strong which will cause killing the path fluency (didn't happen to me).
+
+## Directions API providers
+
+### Google
+
+It's free.
+Learn how to get the key at [Google Developers page](https://developers.google.com/maps/documentation/directions/get-api-key).
+See [docs of Google Directions API](https://developers.google.com/maps/documentation/directions/intro) for more info (e.g. route
+planning modes).
 
 ## TODOs
 

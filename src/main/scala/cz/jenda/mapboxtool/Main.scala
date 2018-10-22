@@ -10,7 +10,6 @@ object Main extends App {
   val configFile = args.headOption.getOrElse(sys.error("Missing config file path!"))
   val configuration = ConfigLoader.load(configFile)
 
-  val google = new Google(configuration.googleApiKey)
   val mapBox = new MapBox(configuration.mapBoxApiKey)
 
   val maxPoints = configuration.maxPointsBase.getOrElse(450) // see docs for the magic constants...
@@ -21,7 +20,8 @@ object Main extends App {
     try {
       println(s"Processing map: $mapConfig")
 
-      val points = pathPoints.map(google.requestRoutePoints)
+      val points = path.map { pc => pc.directionsProvider(pc.waypoints)
+      }
 
       val filteredPoints = points.map { allPoints =>
         val filterModulo = pointsFilterModulo.getOrElse {

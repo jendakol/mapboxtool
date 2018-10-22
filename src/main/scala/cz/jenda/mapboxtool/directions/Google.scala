@@ -1,5 +1,7 @@
-package cz.jenda.mapboxtool
-import cz.jenda.mapboxtool.Google._
+package cz.jenda.mapboxtool.directions
+
+import cz.jenda.mapboxtool.directions.Google._
+import cz.jenda.mapboxtool.{urlEncode, LatLng}
 import io.circe.Json
 import io.circe.generic.extras.Configuration
 import io.circe.generic.extras.auto._
@@ -7,10 +9,10 @@ import io.circe.parser.parse
 import scalaj.http.Http
 import xyz.hyperreal.polyline
 
-class Google(apiKey: String) {
+class Google(apiKey: String) extends DirectionsProvider {
   private implicit val circeConf: Configuration = Configuration.default.withSnakeCaseMemberNames.withSnakeCaseConstructorNames
 
-  def requestRoutePoints(waypoints: Seq[String]): List[LatLng] = {
+  def getRoutePoints(mode: String)(waypoints: Seq[String]): List[LatLng] = {
     require(waypoints.size >= 2, "There has to be at least two waypoints for the path")
 
     val origin = waypoints.head
@@ -19,7 +21,7 @@ class Google(apiKey: String) {
 
     val waypointsStr = through.map(urlEncode).mkString("|")
 
-    val url = s"$rootUrl?origin=${urlEncode(origin)}&destination=${urlEncode(destination)}&waypoints=$waypointsStr&key=$apiKey"
+    val url = s"$rootUrl?mode=$mode&origin=${urlEncode(origin)}&destination=${urlEncode(destination)}&waypoints=$waypointsStr&key=$apiKey"
 
     println(s"Requesting Google Direction API, URL $url")
 
