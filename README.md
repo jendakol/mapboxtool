@@ -44,7 +44,9 @@ Each map configuration contains:
 
 Path configuration:
 1. `directionsProvider` - Directions API configuration
-1. waypoints - set of places for directions path rendering; has to contains at least 2 places
+1. waypoints - set of places for directions path rendering
+    * has to contains at least 2 places
+    * format of waypoints depends on specific directions provider
 
 Directions API configuration:
 1. `provider` - name of provider, see [supported providers list](#directions-api-providers)
@@ -119,6 +121,32 @@ maps = [{
   // missing path
   
   mapPoints = ${points}
+}, {
+  fileName = "/data/maps/pembrokeshire-coast-path.jpeg"
+  width = 1280
+  height = 720
+  zoom = 10.8
+  pitch = 3
+  
+  center {
+    lat = 51.93869
+    lon = -5.14742
+  
+  // "hiking" path:
+  path {
+    directionsProvider {
+      provider = "openrouteservice"
+      mode = "foot-hiking"
+      apiKey = "5b****************************************************af"
+    
+    waypoints = [
+      "-5.10672,51.96083",
+      "-5.163638,51.947461",
+      "-5.0833697,52.0204133",
+      "-4.9915736,52.0206869",
+      "-4.9954322,52.0050561"
+    ]
+  }
 }]
 ```
 
@@ -150,14 +178,26 @@ very long path) the filtering will be too strong which will cause killing the pa
 
 ## Directions API providers
 
+Recommendations:
+* for car routes, use Google
+* for walking/hiking routes, use OpenRoute Service
+
 ### Google
 
-It's free.
+It's free.  
 Learn how to get the key at [Google Developers page](https://developers.google.com/maps/documentation/directions/get-api-key).
 See [docs of Google Directions API](https://developers.google.com/maps/documentation/directions/intro) for more info (e.g. route
-planning modes).
+planning modes).  
+Waypoints are geocoded if needed so you can use all coordinates (`lat,lon`, e.g. `41.43206,-81.38992` meaning "41.43206N, 81.38992W"),
+addresses and place IDs. Read more in docs. 
+
+### OpenRoute Service
+
+It's free.  
+Register at [OpenRoute Service web](https://openrouteservice.org/dev/#/signup) to get an API key and then discover available
+route planning modes in [Directions Service docs](https://openrouteservice.org/dev/#/api-docs/directions/get).  
+Waypoints are in `lon:lat` format (e.g. `-5.10672,51.96083` meaning "51.96083N, 5.10672W").
 
 ## TODOs
 
 1. Parametrize rest of map rendering options - bearing, retina
-1. Parametrize more Directions API options - e.g. enable to plan walking route (will that work for trail paths?)

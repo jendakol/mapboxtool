@@ -8,5 +8,6 @@ trait DirectionsProvider {
 object DirectionsProvider {
   def apply(provider: String, key: String): DirectionsProvider = provider.toLowerCase match {
     case "google" => new Google(key)
+    case "openrouteservice" => new OpenRouteService(key)
   }
 }

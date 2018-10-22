@@ -20,7 +20,8 @@ object Main extends App {
     try {
       println(s"Processing map: $mapConfig")
 
-      val points = path.map { pc => pc.directionsProvider(pc.waypoints)
+      val points = path.map { pc =>
+        pc.directionsProvider(pc.waypoints)
       }
 
       val filteredPoints = points.map { allPoints =>
