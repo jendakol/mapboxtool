@@ -196,8 +196,9 @@ addresses and place IDs. Read more in docs.
 It's free.  
 Register at [OpenRoute Service web](https://openrouteservice.org/dev/#/signup) to get an API key and then discover available
 route planning modes in [Directions Service docs](https://openrouteservice.org/dev/#/api-docs/directions/get).  
-Waypoints are in `lon:lat` format (e.g. `-5.10672,51.96083` meaning "51.96083N, 5.10672W").
+Waypoints are in `lon:lat` format (e.g. `-5.10672,51.96083` meaning "51.96083N, 5.10672W"). You can get the waypoints e.g. at
+[OpenRoute Service Map](https://maps.openrouteservice.org/).
 
 ## TODOs
 
-1. Parametrize rest of map rendering options - bearing, retina
+1. Parametrize rest of map rendering options - type, bearing, retina
