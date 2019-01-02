@@ -10,7 +10,8 @@ import xyz.hyperreal.polyline
 import scala.language.postfixOps
 
 class MapBox(apiKey: String) {
-  def render(file: File)(center: LatLng,
+  def render(file: File)(style: String,
+                         center: LatLng,
                          width: Int,
                          height: Int,
                          zoom: Double,
@@ -27,7 +28,7 @@ class MapBox(apiKey: String) {
 
     val centerStr = "%.5f,%.5f".formatLocal(Locale.US, center.lon, center.lat)
 
-    val url = s"$rootUrl$finalOverlayStr/$centerStr,$zoom.0,0,$pitch/${width}x$height@2x?access_token=$apiKey"
+    val url = s"$rootUrl/$style/static/$finalOverlayStr/$centerStr,$zoom.0,0,$pitch/${width}x$height@2x?access_token=$apiKey"
 
     println {
       val mapPC = mapPoints.map(_.size).getOrElse(0)
@@ -47,5 +48,5 @@ class MapBox(apiKey: String) {
 }
 
 object MapBox {
-  final val rootUrl: String = "https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v10/static/"
+  final val rootUrl: String = "https://api.mapbox.com/styles/v1/mapbox"
 }

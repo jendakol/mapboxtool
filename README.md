@@ -31,6 +31,7 @@ The application is configured via single file in [HOCON format](https://github.c
 The file has to content:
 1. `mapBoxApiKey`
 1. `maps` configurations
+1. `defaults` configuration
 1. `maxPointsBase` (optional) - see [P.S.s](#pss); configures max. number of points passed to MapBox rendering
 
 Each map configuration contains:
@@ -53,6 +54,11 @@ Directions API configuration:
 1. `mode` - mode of the path searching; directly related to specific provider
 1. `apiKey` - API key of specific provider; see related section in [supported providers list](#directions-api-providers)
 
+Defaults configuration:
+To prevent repetition of parameters you usually want to have the same in all maps, there is `defaults` section in the config.  
+It _may_ be completely empty if you don't want to use it or it supports all declarations like _map configuration_ (it's merged as
+fallback).
+
 _Note: you can use [playground](https://www.mapbox.com/help/static-api-playground/) to try map render settings._
 
 Example file looks like this:
@@ -60,6 +66,22 @@ Example file looks like this:
 ```hocon
 mapBoxApiKey = "pk.*************************************************************************************dA"
 googleApiKey = "AI***********************************OA"
+
+defaults {
+  style = "satellite-streets-v10"
+  width = 1280
+  height = 720
+  zoom = 5.9
+  pitch = 30
+
+  path {
+    directionsProvider {
+      provider = "google"
+      mode = "driving"
+      apiKey = ${googleApiKey}
+    }
+  }
+}
 
 points = [
   {
@@ -123,6 +145,7 @@ maps = [{
   mapPoints = ${points}
 }, {
   fileName = "/data/maps/pembrokeshire-coast-path.jpeg"
+  style = "satellite-streets-v10"
   width = 1280
   height = 720
   zoom = 10.8
@@ -201,4 +224,4 @@ Waypoints are in `lon:lat` format (e.g. `-5.10672,51.96083` meaning "51.96083N, 
 
 ## TODOs
 
-1. Parametrize rest of map rendering options - type, bearing, retina
+1. Parametrize rest of map rendering options - bearing, retina
