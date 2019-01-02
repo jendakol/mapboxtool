@@ -32,16 +32,18 @@ object Main extends App {
         }
 
         allPoints.zipWithIndex.filter(_._2 % filterModulo == 0).map(_._1)
-      }
+      }.filter(_.nonEmpty)
 
       println(s"Rendering map to $fileName")
 
-      mapBox.render(new File(fileName))(center, width, height, zoom, pitch, filteredPoints, mapPoints.map(_.map(_.coords)))
+      mapBox.render(new File(fileName))(style, center, width, height, zoom, pitch, filteredPoints, mapPoints.map(_.map(_.coords)))
     } catch {
       case NonFatal(e) =>
         println(s"Processing of map to $fileName failed")
         e.printStackTrace()
     }
+
+    println("--")
   }
 
   sys.exit(0)

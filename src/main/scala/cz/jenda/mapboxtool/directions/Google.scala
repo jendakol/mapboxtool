@@ -13,41 +13,45 @@ class Google(apiKey: String) extends DirectionsProvider {
   private implicit val circeConf: Configuration = Configuration.default.withSnakeCaseMemberNames.withSnakeCaseConstructorNames
 
   def getRoutePoints(mode: String)(waypoints: Seq[String]): List[LatLng] = {
-    require(waypoints.size >= 2, "There has to be at least two waypoints for the path")
+    if (waypoints.isEmpty) {
+      List.empty
+    } else {
+      require(waypoints.size >= 2, "There has to be at least two waypoints for the path")
 
-    val origin = waypoints.head
-    val destination = waypoints.last
-    val through = waypoints.drop(1).dropRight(1)
+      val origin = waypoints.head
+      val destination = waypoints.last
+      val through = waypoints.drop(1).dropRight(1)
 
-    val waypointsStr = through.map(urlEncode).mkString("|")
+      val waypointsStr = through.map(urlEncode).mkString("|")
 
-    val url = s"$rootUrl?mode=$mode&origin=${urlEncode(origin)}&destination=${urlEncode(destination)}&waypoints=$waypointsStr&key=$apiKey"
+      val url = s"$rootUrl?mode=$mode&origin=${urlEncode(origin)}&destination=${urlEncode(destination)}&waypoints=$waypointsStr&key=$apiKey"
 
-    println(s"Requesting Google Direction API, URL $url")
+      println(s"Requesting Google Direction API, URL $url")
 
-    val jsonStr = Http(url).asString.body
+      val jsonStr = Http(url).asString.body
 
-    val cursor = parse(jsonStr).getOrElse(sys.error("Could not parse Google json")).hcursor
+      val cursor = parse(jsonStr).getOrElse(sys.error("Could not parse Google json")).hcursor
 
-    cursor.get[String]("status").getOrElse(sys.error("Could not decode response JSON")) match {
-      case "OK" => // ok
-      case status =>
-        sys.error(s"Wrong JSON returned, status $status:\n$jsonStr")
-    }
-
-    val allPoints = cursor
-      .downField("routes")
-      .downArray
-      .get[List[Json]]("legs")
-      .getOrElse(sys.error(s"Could not decode route legs; response:\n$jsonStr"))
-      .flatMap {
-        _.hcursor
-          .get[List[Json]]("steps")
-          .getOrElse(throw new RuntimeException(s"Could not decode route steps; response:\n$jsonStr"))
+      cursor.get[String]("status").getOrElse(sys.error("Could not decode response JSON")) match {
+        case "OK" => // ok
+        case status =>
+          sys.error(s"Wrong JSON returned, status $status:\n$jsonStr")
       }
-      .map(_.hcursor.downField("polyline").get[String]("points").getOrElse(sys.error("Could not decode polyline points")))
 
-    allPoints.flatMap(polyline.decode).map(t => LatLng(t._2, t._1))
+      val allPoints = cursor
+        .downField("routes")
+        .downArray
+        .get[List[Json]]("legs")
+        .getOrElse(sys.error(s"Could not decode route legs; response:\n$jsonStr"))
+        .flatMap {
+          _.hcursor
+            .get[List[Json]]("steps")
+            .getOrElse(throw new RuntimeException(s"Could not decode route steps; response:\n$jsonStr"))
+        }
+        .map(_.hcursor.downField("polyline").get[String]("points").getOrElse(sys.error("Could not decode polyline points")))
+
+      allPoints.flatMap(polyline.decode).map(t => LatLng(t._2, t._1))
+    }
   }
 }
 
